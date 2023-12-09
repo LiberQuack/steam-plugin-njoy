@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Joystick Control</title>
+</head>
+<body>
+<button id="connect">Connect to Joystick</button>
+<div id="pressButton">Press Button</div>
+
+<script>
+    function alertErr(pre) {
+        return error => {
+            alert(pre + JSON.stringify(error, null, 2));
+        };
+    }
+
+    function debug(dbgMessage, obj) {
+        alert(dbgMessage + JSON.stringify(obj, null, 2));
+    }
+
+    document.querySelector('#connect').addEventListener('click', function() {
+        navigator.bluetooth.requestDevice({ filters: [{ services: ['12345678-1234-1234-1234-123456789abc'] }] })
+            .then(device => device.gatt.connect())
+            .then(server => server.getPrimaryService('12345678-1234-1234-1234-123456789abc'))
+            .then(service => service.getCharacteristic('12345678-1234-1234-1234-123456789abd'))
+            .then(characteristic => {
+                // Save the characteristic for later use
+                alert("button connected");
+                window.buttonCharacteristic = characteristic;
+            })
+            .catch(alertErr("NOT connected \n"));
+    });
+    document.querySelector('#pressButton').addEventListener('touchstart', function() {
+        if (window.buttonCharacteristic) {
+            let value = new Uint8Array([1]); // Simulate a button press
+            window.buttonCharacteristic.writeValue(value)
+        }
+    });
+</script>
+</body>
+</html>
