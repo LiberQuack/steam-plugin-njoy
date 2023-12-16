@@ -17,35 +17,39 @@ func main() {
 
 	// Simulate button presses and releases
 	buttonActions := []func() error{
-		controller.ButtonPressA, controller.ButtonReleaseA,
-		controller.ButtonPressB, controller.ButtonReleaseB,
-		controller.ButtonPressX, controller.ButtonReleaseX,
-		controller.ButtonPressY, controller.ButtonReleaseY,
-		controller.ButtonPressLB, controller.ButtonReleaseLB,
-		controller.ButtonPressRB, controller.ButtonReleaseRB,
-		controller.ButtonPressBack, controller.ButtonReleaseBack,
-		controller.ButtonPressStart, controller.ButtonReleaseStart,
-		controller.ButtonPressL3, controller.ButtonReleaseL3,
-		controller.ButtonPressR3, controller.ButtonReleaseR3,
-		controller.ButtonPressXbox, controller.ButtonReleaseXbox,
+		//controller.ButtonPressA, controller.ButtonReleaseA,
+		//controller.ButtonPressB, controller.ButtonReleaseB,
+		//controller.ButtonPressX, controller.ButtonReleaseX,
+		//controller.ButtonPressY, controller.ButtonReleaseY,
+		//controller.ButtonPressLB, controller.ButtonReleaseLB,
+		//controller.ButtonPressRB, controller.ButtonReleaseRB,
+		controller.MoveLT,
+		controller.MoveRT,
+		//controller.ButtonPressBack, controller.ButtonReleaseBack,
+		//controller.ButtonPressStart, controller.ButtonReleaseStart,
+		//controller.ButtonPressL3, controller.ButtonReleaseL3,
+		//controller.ButtonPressR3, controller.ButtonReleaseR3,
 	}
 
 	// Simulate D-pad presses and releases
 	dpadActions := []func() error{
-		controller.DpadPressUp, controller.DpadReleaseUp,
-		controller.DpadPressDown, controller.DpadReleaseDown,
-		controller.DpadPressLeft, controller.DpadReleaseLeft,
-		controller.DpadPressRight, controller.DpadReleaseRight,
+		//controller.DpadPressUp, controller.DpadReleaseUp,
+		//controller.DpadPressDown, controller.DpadReleaseDown,
+		//controller.DpadPressLeft, controller.DpadReleaseLeft,
+		//controller.DpadPressRight, controller.DpadReleaseRight,
 	}
 
 	// Simulate stick movements
 	stickMovements := []func(float32, float32) error{
-		controller.LeftStickMove, controller.RightStickMove,
+		//controller.LeftStickMove, controller.RightStickMove,
 	}
 
 	stickPositions := []struct{ x, y float32 }{
-		{32767, 0}, {0, 32767}, {-32768, 0}, {0, -32768},
-		{0, 0},
+		//{32767, 0},
+		//{-32767, 0},
+		//{0, 32767},
+		//{0, -32767},
+		//{0, 0},
 	}
 
 	for {
@@ -71,6 +75,5 @@ func main() {
 				time.Sleep(500 * time.Millisecond)
 			}
 		}
-
 	}
 }

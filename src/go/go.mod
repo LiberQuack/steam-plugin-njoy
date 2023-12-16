@@ -2,6 +2,8 @@ module github.com/liberquack/steam-plugin-enjoy
 
 go 1.21.4
 
+replace github.com/bendahl/uinput => ./../../../uinput
+
 require (
 	github.com/bendahl/uinput v1.7.0
 	github.com/go-ble/ble v0.0.0-20230130210458-dd4b07d15402

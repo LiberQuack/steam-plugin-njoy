@@ -23,24 +23,24 @@ func main() {
 
 	ble.SetDefaultDevice(d)
 
-	joystickService1 := newJoystickService("12345678-1234-1234-1234-123456789ab1")
-	joystickService2 := newJoystickService("12345678-1234-1234-1234-123456789ab2")
-	ble.AddService(joystickService1)
-	ble.AddService(joystickService2)
+	joystickService1 := newJoystickService("12345678-1234-1234-1234-123456789abc")
+	err = ble.AddService(joystickService1)
+	if err != nil {
+		panic(err)
+	}
 
 	deviceInfoService := newDeviceInfoService()
-
 	ble.AddService(deviceInfoService)
 
-	ctx := context.Background()
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
 
 	go func() {
-		ctx, cancel := signal.NotifyContext(ctx, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
-		defer cancel()
-
 		ctx = ble.WithSigHandler(ctx, cancel)
 		fmt.Println("Advertising...")
-		ble.AdvertiseNameAndServices(ctx, "XboxLikeJoystick", joystickService1.UUID, joystickService2.UUID)
+		err := ble.AdvertiseNameAndServices(ctx, "XboxLikeJoystick", joystickService1.UUID)
+		if err != nil {
+			panic(err)
+		}
 
 	}()
 
@@ -102,7 +102,7 @@ func newJoystickService(uuid string) *ble.Service {
 }
 
 func serveLocal() error {
-	fs := http.FileServer(http.Dir("."))
+	fs := http.FileServer(http.Dir("./"))
 
 	// Handle all requests by serving a file of the same name.
 	http.Handle("/", fs)

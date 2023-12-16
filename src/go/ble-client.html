@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Joystick Control</title>
+</head>
+<body>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+</style>
+
+
+<button id="connect">Connect to Joystick</button>
+<div id="pressButton">Press Button</div>
+
+<script>
+    function alertErr(pre) {
+        return error => {
+            alert(pre + JSON.stringify(error, null, 2));
+        };
+    }
+
+    function debug(dbgMessage, obj) {
+        alert(dbgMessage + JSON.stringify(obj, null, 2));
+    }
+
+    document.querySelector('#connect').addEventListener('click', function() {
+        navigator.bluetooth.requestDevice({ filters: [{ services: ['12345678-1234-1234-1234-123456789abc'] }] })
+            .then(device => device.gatt.connect())
+            .then(server => server.getPrimaryService('12345678-1234-1234-1234-123456789abc'))
+            .then(service => service.getCharacteristic('12345678-1234-1234-1234-123456789abd'))
+            .then(characteristic => {
+                // Save the characteristic for later use
+                alert("button connected");
+                window.buttonCharacteristic = characteristic;
+            })
+            .catch(alertErr("NOT connected \n"));
+    });
+    document.querySelector('#pressButton').addEventListener('touchstart', function() {
+        if (window.buttonCharacteristic) {
+            let value = new Uint8Array([1]); // Simulate a button press
+            window.buttonCharacteristic.writeValue(value)
+        }
+    });
+</script>
+
+
+<!--DPAD-->
+
+<style>
+    .dpad {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100px;
+        height: 100px;
+        position: relative;
+        margin: 50px;
+        background-color: #f0f0f0; /* Light gray background */
+    }
+
+    .button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px; /* Smaller width for no overlap */
+        height: 30px; /* Smaller height for no overlap */
+        border: 1px solid black;
+        user-select: none;
+        background-color: gray; /* Gray background for buttons */
+    }
+
+    .up {
+        position: absolute;
+        top: 5px; /* Adjusted for no overlap */
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .right {
+        position: absolute;
+        top: 50%;
+        right: 5px; /* Adjusted for no overlap */
+        transform: translateY(-50%);
+    }
+
+    .down {
+        position: absolute;
+        bottom: 5px; /* Adjusted for no overlap */
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .left {
+        position: absolute;
+        top: 50%;
+        left: 5px; /* Adjusted for no overlap */
+        transform: translateY(-50%);
+    }
+</style>
+
+<div class="dpad">
+    <div class="button up">↑</div>
+    <div class="button right">→</div>
+    <div class="button down">↓</div>
+    <div class="button left">←</div>
+</div>
+
+<!--XBOX BUTTONS -->
+
+<style>
+    /* ... (Your previous styles for the D-pad) ... */
+
+    .xbox-buttons {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        margin-left: 150px; /* Adjust as needed */
+        background-color: #f0f0f0; /* Light gray background for the container */
+    }
+
+    .xbox-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%; /* Circular buttons */
+        border: 1px solid black;
+        background-color: gray;
+        position: absolute;
+        user-select: none;
+    }
+
+    .button-x { top: 10px; left: 35px; } /* Positioned for X */
+    .button-y { top: 35px; left: 60px; } /* Positioned for Y */
+    .button-a { top: 35px; left: 10px; } /* Positioned for A */
+    .button-b { top: 60px; left: 35px; } /* Positioned for B */
+</style>
+
+<div class="xbox-buttons">
+    <div class="xbox-button button-x">X</div>
+    <div class="xbox-button button-y">Y</div>
+    <div class="xbox-button button-a">A</div>
+    <div class="xbox-button button-b">B</div>
+</div>
+
+
+<!--Analog container-->
+
+<style>
+    /* ... (Your previous styles for the D-pad and Xbox buttons) ... */
+
+    .analog-container {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        background-color: #f0f0f0; /* Light gray background */
+        border: 1px solid black;
+        border-radius: 50%;
+        margin-top: 20px; /* Spacing from the previous elements */
+    }
+
+    .analog-stick {
+        position: absolute;
+        width: 40px; /* Size of the stick */
+        height: 40px;
+        background-color: darkgray;
+        border: 1px solid black;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%); /* Center the stick */
+    }
+</style>
+
+<div class="analog-container" id="analogContainer">
+    <div class="analog-stick" id="analogStick"></div>
+</div>
+
+
+<script>
+    const analogStick = document.getElementById('analogStick');
+    const analogContainer = document.getElementById('analogContainer');
+
+    let isDragging = false;
+
+    // Function to handle the start of interactions
+    function handleStart(e) {
+        isDragging = true;
+        e.preventDefault();
+        updateStickPosition(e);
+    }
+
+    // Function to handle the end of interactions
+    function handleEnd() {
+        isDragging = false;
+        resetStickPosition();
+    }
+
+    // Function to handle the movement of the stick
+    function handleMove(e) {
+        if (isDragging) {
+            e.preventDefault();
+            updateStickPosition(e);
+        }
+    }
+
+    // Update the stick position
+    function updateStickPosition(e) {
+        let clientX, clientY;
+
+        if (e.touches) {
+            clientX = e.touches[0].clientX;
+            clientY = e.touches[0].clientY;
+        } else {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        }
+
+        const rect = analogContainer.getBoundingClientRect();
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const dx = x - centerX;
+        const dy = y - centerY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const maxDistance = 30; // Max distance from center
+        const distanceRatio = Math.min(distance / maxDistance, 1);
+
+        analogStick.style.transform = `translate(-50%, -50%) translate(${dx * distanceRatio}px, ${dy * distanceRatio}px)`;
+    }
+
+    // Reset the stick position
+    function resetStickPosition() {
+        analogStick.style.transform = 'translate(-50%, -50%)';
+    }
+
+    // Mouse event listeners
+    analogContainer.addEventListener('mousedown', handleStart);
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('mouseup', handleEnd);
+
+    // Touch event listeners
+    analogContainer.addEventListener('touchstart', handleStart);
+    document.addEventListener('touchmove', handleMove);
+    document.addEventListener('touchend', handleEnd);
+    document.addEventListener('touchcancel', handleEnd); // Handle touch cancel
+</script>
+
+
+
+<!--START AND SELECT-->
+
+<style>
+    /* ... (Your previous styles for the D-pad, Xbox buttons, and analog stick) ... */
+
+    .controller-buttons {
+        display: flex;
+        justify-content: space-around;
+        width: 200px; /* Adjust the width as needed */
+        margin: 20px auto; /* Centering and spacing from other elements */
+    }
+
+    .controller-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px; /* Size of the buttons */
+        height: 30px;
+        background-color: lightgray;
+        border: 1px solid black;
+        border-radius: 5px; /* Slightly rounded corners */
+        user-select: none;
+    }
+</style>
+
+<div class="controller-buttons">
+    <div class="controller-button">Select</div>
+    <div class="controller-button">Start</div>
+</div>
+
+
+<!-- Triggers and Bumpers -->
+
+<style>
+    /* ... (Your previous styles for the D-pad, Xbox buttons, analog stick, and Start/Select buttons) ... */
+
+    .left-controls {
+        position: relative;
+        margin-left: 50px; /* Adjust as needed */
+        margin-top: 20px; /* Spacing from other elements */
+    }
+
+    .bumper, .trigger {
+        width: 100px; /* Increased width of the bumper and trigger */
+        height: 30px; /* Increased height of the bumper */
+        background-color: darkgray;
+        border: 1px solid black;
+        margin-bottom: 10px; /* Spacing between bumper and trigger */
+        border-radius: 5px; /* Slightly rounded edges */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .trigger {
+        height: 35px; /* Slightly shorter than the bumper, but increased from before */
+        background-color: lightgray;
+    }
+</style>
+
+<div class="left-controls">
+    <div class="trigger">LT</div>
+    <div class="bumper">LB</div>
+</div>
+
+
+</body>
+</html>

@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/bendahl/uinput"
 	"math"
+	"time"
 )
 
 type xboxController struct {
@@ -10,6 +11,9 @@ type xboxController struct {
 
 	LeftStickMove  func(x float32, y float32) error
 	RightStickMove func(x float32, y float32) error
+
+	MoveLT func() error
+	MoveRT func() error
 
 	DpadPressUp      func() error
 	DpadReleaseUp    func() error
@@ -48,7 +52,7 @@ type newXboxController func() (xboxController, error)
 
 func makeNewUdevXboxController() newXboxController {
 	return func() (xboxController, error) {
-		gamepad, err := uinput.CreateGamepad("/dev/uinput", []byte("Virtual Xbox Controller"), 0x045e, 0x028e)
+		gamepad, err := uinput.CreateGamepad("/dev/uinput", []byte("Virtual Xbox Controller"), 0x045e, 0x02d1)
 		if err != nil {
 			return xboxController{}, nil
 		}
@@ -63,23 +67,23 @@ func makeBindXboxController() bindXboxController {
 	return func(xboxJoystick xboxController) xboxController {
 
 		xboxJoystick.LeftStickMove = func(x float32, y float32) error {
-			x = float32(math.Max(float64(x), 32767))
-			x = float32(math.Min(float64(x), -32768))
-			y = float32(math.Max(float64(y), 32767))
-			y = float32(math.Min(float64(y), -32768))
+			x = float32(math.Min(float64(x), uinput.MaximumAxisValue))
+			x = float32(math.Max(float64(x), -uinput.MaximumAxisValue))
+			y = float32(math.Min(float64(y), uinput.MaximumAxisValue))
+			y = float32(math.Max(float64(y), -uinput.MaximumAxisValue))
 			return xboxJoystick.gamepad.LeftStickMove(x, y)
 		}
 
 		xboxJoystick.RightStickMove = func(x float32, y float32) error {
-			x = float32(math.Max(float64(x), 32767))
-			x = float32(math.Min(float64(x), -32768))
-			y = float32(math.Max(float64(y), 32767))
-			y = float32(math.Min(float64(y), -32768))
+			x = float32(math.Min(float64(x), uinput.MaximumAxisValue))
+			x = float32(math.Max(float64(x), -uinput.MaximumAxisValue))
+			y = float32(math.Min(float64(y), uinput.MaximumAxisValue))
+			y = float32(math.Max(float64(y), -uinput.MaximumAxisValue))
 			return xboxJoystick.gamepad.RightStickMove(x, y)
 		}
 
 		xboxJoystick.DpadPressUp = func() error {
-			return xboxJoystick.gamepad.HatPress(uinput.HatUp)
+			return xboxJoystick.gamepad.HatPress(uinput.HatUp, uinput.MaximumAxisValue)
 		}
 
 		xboxJoystick.DpadReleaseUp = func() error {
@@ -87,7 +91,7 @@ func makeBindXboxController() bindXboxController {
 		}
 
 		xboxJoystick.DpadPressDown = func() error {
-			return xboxJoystick.gamepad.HatPress(uinput.HatDown)
+			return xboxJoystick.gamepad.HatPress(uinput.HatDown, uinput.MaximumAxisValue)
 		}
 
 		xboxJoystick.DpadReleaseDown = func() error {
@@ -95,7 +99,7 @@ func makeBindXboxController() bindXboxController {
 		}
 
 		xboxJoystick.DpadPressLeft = func() error {
-			return xboxJoystick.gamepad.HatPress(uinput.HatLeft)
+			return xboxJoystick.gamepad.HatPress(uinput.HatLeft, uinput.MaximumAxisValue)
 		}
 
 		xboxJoystick.DpadReleaseLeft = func() error {
@@ -103,7 +107,7 @@ func makeBindXboxController() bindXboxController {
 		}
 
 		xboxJoystick.DpadPressRight = func() error {
-			return xboxJoystick.gamepad.HatPress(uinput.HatRight)
+			return xboxJoystick.gamepad.HatPress(uinput.HatRight, uinput.MaximumAxisValue)
 		}
 
 		xboxJoystick.DpadReleaseRight = func() error {
@@ -111,7 +115,7 @@ func makeBindXboxController() bindXboxController {
 		}
 
 		xboxJoystick.ButtonPressA = func() error {
-			return xboxJoystick.gamepad.ButtonDown(304)
+			return xboxJoystick.gamepad.ButtonDown(304, 1)
 		}
 
 		xboxJoystick.ButtonReleaseA = func() error {
@@ -119,7 +123,7 @@ func makeBindXboxController() bindXboxController {
 		}
 
 		xboxJoystick.ButtonPressB = func() error {
-			return xboxJoystick.gamepad.ButtonDown(305)
+			return xboxJoystick.gamepad.ButtonDown(305, 1)
 		}
 
 		xboxJoystick.ButtonReleaseB = func() error {
@@ -127,7 +131,7 @@ func makeBindXboxController() bindXboxController {
 		}
 
 		xboxJoystick.ButtonPressX = func() error {
-			return xboxJoystick.gamepad.ButtonDown(307)
+			return xboxJoystick.gamepad.ButtonDown(307, 1)
 		}
 
 		xboxJoystick.ButtonReleaseX = func() error {
@@ -135,7 +139,7 @@ func makeBindXboxController() bindXboxController {
 		}
 
 		xboxJoystick.ButtonPressY = func() error {
-			return xboxJoystick.gamepad.ButtonDown(308)
+			return xboxJoystick.gamepad.ButtonDown(308, 1)
 		}
 
 		xboxJoystick.ButtonReleaseY = func() error {
@@ -143,7 +147,7 @@ func makeBindXboxController() bindXboxController {
 		}
 
 		xboxJoystick.ButtonPressLB = func() error {
-			return xboxJoystick.gamepad.ButtonDown(310)
+			return xboxJoystick.gamepad.ButtonDown(310, 1)
 		}
 
 		xboxJoystick.ButtonReleaseLB = func() error {
@@ -151,15 +155,39 @@ func makeBindXboxController() bindXboxController {
 		}
 
 		xboxJoystick.ButtonPressRB = func() error {
-			return xboxJoystick.gamepad.ButtonDown(311)
+			return xboxJoystick.gamepad.ButtonDown(311, 1)
 		}
 
 		xboxJoystick.ButtonReleaseRB = func() error {
 			return xboxJoystick.gamepad.ButtonUp(311)
 		}
 
+		xboxJoystick.MoveLT = func() error {
+			xboxJoystick.gamepad.TriggerMove(0x00, 255)
+			time.Sleep(50 * time.Millisecond)
+			xboxJoystick.gamepad.TriggerMove(0x01, 255)
+			time.Sleep(50 * time.Millisecond)
+			xboxJoystick.gamepad.TriggerMove(0x02, 255)
+			time.Sleep(50 * time.Millisecond)
+			xboxJoystick.gamepad.TriggerMove(0x03, 255)
+			time.Sleep(50 * time.Millisecond)
+			xboxJoystick.gamepad.TriggerMove(0x04, 255)
+			time.Sleep(50 * time.Millisecond)
+			xboxJoystick.gamepad.TriggerMove(0x05, 255)
+			time.Sleep(50 * time.Millisecond)
+			xboxJoystick.gamepad.TriggerMove(0x10, 255)
+			time.Sleep(50 * time.Millisecond)
+			xboxJoystick.gamepad.TriggerMove(0x11, 255)
+			time.Sleep(50 * time.Millisecond)
+			return nil
+		}
+
+		xboxJoystick.MoveRT = func() error {
+			return xboxJoystick.gamepad.ButtonDown(0x05, 255)
+		}
+
 		xboxJoystick.ButtonPressBack = func() error {
-			return xboxJoystick.gamepad.ButtonDown(314)
+			return xboxJoystick.gamepad.ButtonDown(314, 1)
 		}
 
 		xboxJoystick.ButtonReleaseBack = func() error {
@@ -167,7 +195,7 @@ func makeBindXboxController() bindXboxController {
 		}
 
 		xboxJoystick.ButtonPressStart = func() error {
-			return xboxJoystick.gamepad.ButtonDown(315)
+			return xboxJoystick.gamepad.ButtonDown(315, 1)
 		}
 
 		xboxJoystick.ButtonReleaseStart = func() error {
@@ -175,7 +203,7 @@ func makeBindXboxController() bindXboxController {
 		}
 
 		xboxJoystick.ButtonPressXbox = func() error {
-			return xboxJoystick.gamepad.ButtonDown(316)
+			return xboxJoystick.gamepad.ButtonDown(316, 1)
 		}
 
 		xboxJoystick.ButtonReleaseXbox = func() error {
@@ -183,7 +211,7 @@ func makeBindXboxController() bindXboxController {
 		}
 
 		xboxJoystick.ButtonPressL3 = func() error {
-			return xboxJoystick.gamepad.ButtonDown(317)
+			return xboxJoystick.gamepad.ButtonDown(317, 1)
 		}
 
 		xboxJoystick.ButtonReleaseL3 = func() error {
@@ -191,7 +219,7 @@ func makeBindXboxController() bindXboxController {
 		}
 
 		xboxJoystick.ButtonPressR3 = func() error {
-			return xboxJoystick.gamepad.ButtonDown(318)
+			return xboxJoystick.gamepad.ButtonDown(318, 1)
 		}
 
 		xboxJoystick.ButtonReleaseR3 = func() error {
