@@ -26,8 +26,8 @@
         alert(dbgMessage + JSON.stringify(obj, null, 2));
     }
 
-    document.querySelector('#connect').addEventListener('click', function() {
-        navigator.bluetooth.requestDevice({ filters: [{ services: ['12345678-1234-1234-1234-123456789abc'] }] })
+    document.querySelector('#connect').addEventListener('click', function () {
+        navigator.bluetooth.requestDevice({filters: [{services: ['12345678-1234-1234-1234-123456789abc']}]})
             .then(device => device.gatt.connect())
             .then(server => server.getPrimaryService('12345678-1234-1234-1234-123456789abc'))
             .then(service => service.getCharacteristic('12345678-1234-1234-1234-123456789abd'))
@@ -38,7 +38,7 @@
             })
             .catch(alertErr("NOT connected \n"));
     });
-    document.querySelector('#pressButton').addEventListener('touchstart', function() {
+    document.querySelector('#pressButton').addEventListener('touchstart', function () {
         if (window.buttonCharacteristic) {
             let value = new Uint8Array([1]); // Simulate a button press
             window.buttonCharacteristic.writeValue(value)
@@ -47,276 +47,400 @@
 </script>
 
 
-<!--DPAD-->
-
 <style>
-    .dpad {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100px;
-        height: 100px;
+    /* Common container class */
+    .controller-container {
         position: relative;
-        margin: 50px;
         background-color: #f0f0f0; /* Light gray background */
+        border: 0.0625em solid black; /* Equivalent to 1px */
     }
 
+    /* Common styles for buttons */
     .button {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 30px; /* Smaller width for no overlap */
-        height: 30px; /* Smaller height for no overlap */
-        border: 1px solid black;
+        width: 1.875em; /* Equivalent to 30px */
+        height: 1.875em; /* Equivalent to 30px */
+        border: 0.0625em solid black; /* Equivalent to 1px */
         user-select: none;
-        background-color: gray; /* Gray background for buttons */
+        background-color: gray;
+    }
+
+    /* D-pad specific styles */
+    .dpad {
+        width: 6.25em; /* Equivalent to 100px */
+        height: 6.25em; /* Equivalent to 100px */
+    }
+
+    .dpad .button {
+        position: absolute;
     }
 
     .up {
-        position: absolute;
-        top: 5px; /* Adjusted for no overlap */
+        top: 0.3125em; /* Equivalent to 5px */
         left: 50%;
         transform: translateX(-50%);
     }
 
     .right {
-        position: absolute;
         top: 50%;
-        right: 5px; /* Adjusted for no overlap */
+        right: 0.3125em; /* Equivalent to 5px */
         transform: translateY(-50%);
     }
 
     .down {
-        position: absolute;
-        bottom: 5px; /* Adjusted for no overlap */
+        bottom: 0.3125em; /* Equivalent to 5px */
         left: 50%;
         transform: translateX(-50%);
     }
 
     .left {
-        position: absolute;
         top: 50%;
-        left: 5px; /* Adjusted for no overlap */
+        left: 0.3125em; /* Equivalent to 5px */
         transform: translateY(-50%);
     }
-</style>
 
-<div class="dpad">
-    <div class="button up">↑</div>
-    <div class="button right">→</div>
-    <div class="button down">↓</div>
-    <div class="button left">←</div>
-</div>
-
-<!--XBOX BUTTONS -->
-
-<style>
-    /* ... (Your previous styles for the D-pad) ... */
-
+    /* Xbox buttons specific styles */
     .xbox-buttons {
-        position: relative;
-        width: 100px;
-        height: 100px;
-        margin-left: 150px; /* Adjust as needed */
-        background-color: #f0f0f0; /* Light gray background for the container */
+        width: 6.25em; /* Equivalent to 100px */
+        height: 6.25em; /* Equivalent to 100px */
     }
 
-    .xbox-button {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 30px;
-        height: 30px;
+    .xbox-buttons .button {
         border-radius: 50%; /* Circular buttons */
-        border: 1px solid black;
-        background-color: gray;
         position: absolute;
-        user-select: none;
     }
 
-    .button-x { top: 10px; left: 35px; } /* Positioned for X */
-    .button-y { top: 35px; left: 60px; } /* Positioned for Y */
-    .button-a { top: 35px; left: 10px; } /* Positioned for A */
-    .button-b { top: 60px; left: 35px; } /* Positioned for B */
-</style>
+    .button-x {
+        top: 0.625em;
+        left: 2.1875em;
+    }
 
-<div class="xbox-buttons">
-    <div class="xbox-button button-x">X</div>
-    <div class="xbox-button button-y">Y</div>
-    <div class="xbox-button button-a">A</div>
-    <div class="xbox-button button-b">B</div>
-</div>
+    /* Equivalent positions */
+    .button-y {
+        top: 2.1875em;
+        left: 3.75em;
+    }
 
+    .button-a {
+        top: 2.1875em;
+        left: 0.625em;
+    }
 
-<!--Analog container-->
+    .button-b {
+        top: 3.75em;
+        left: 2.1875em;
+    }
 
-<style>
-    /* ... (Your previous styles for the D-pad and Xbox buttons) ... */
-
+    /* Analog stick specific styles */
     .analog-container {
-        position: relative;
-        width: 100px;
-        height: 100px;
-        background-color: #f0f0f0; /* Light gray background */
-        border: 1px solid black;
         border-radius: 50%;
-        margin-top: 20px; /* Spacing from the previous elements */
+        width: 6.25em; /* Equivalent to 100px */
+        height: 6.25em; /* Equivalent to 100px */
     }
 
     .analog-stick {
         position: absolute;
-        width: 40px; /* Size of the stick */
-        height: 40px;
+        width: 2.5em; /* Equivalent to 40px */
+        height: 2.5em;
         background-color: darkgray;
-        border: 1px solid black;
         border-radius: 50%;
         top: 50%;
         left: 50%;
-        transform: translate(-50%, -50%); /* Center the stick */
-    }
-</style>
-
-<div class="analog-container" id="analogContainer">
-    <div class="analog-stick" id="analogStick"></div>
-</div>
-
-
-<script>
-    const analogStick = document.getElementById('analogStick');
-    const analogContainer = document.getElementById('analogContainer');
-
-    let isDragging = false;
-
-    // Function to handle the start of interactions
-    function handleStart(e) {
-        isDragging = true;
-        e.preventDefault();
-        updateStickPosition(e);
+        transform: translate(-50%, -50%);
     }
 
-    // Function to handle the end of interactions
-    function handleEnd() {
-        isDragging = false;
-        resetStickPosition();
-    }
-
-    // Function to handle the movement of the stick
-    function handleMove(e) {
-        if (isDragging) {
-            e.preventDefault();
-            updateStickPosition(e);
-        }
-    }
-
-    // Update the stick position
-    function updateStickPosition(e) {
-        let clientX, clientY;
-
-        if (e.touches) {
-            clientX = e.touches[0].clientX;
-            clientY = e.touches[0].clientY;
-        } else {
-            clientX = e.clientX;
-            clientY = e.clientY;
-        }
-
-        const rect = analogContainer.getBoundingClientRect();
-        const x = clientX - rect.left;
-        const y = clientY - rect.top;
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        const dx = x - centerX;
-        const dy = y - centerY;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const maxDistance = 30; // Max distance from center
-        const distanceRatio = Math.min(distance / maxDistance, 1);
-
-        analogStick.style.transform = `translate(-50%, -50%) translate(${dx * distanceRatio}px, ${dy * distanceRatio}px)`;
-    }
-
-    // Reset the stick position
-    function resetStickPosition() {
-        analogStick.style.transform = 'translate(-50%, -50%)';
-    }
-
-    // Mouse event listeners
-    analogContainer.addEventListener('mousedown', handleStart);
-    document.addEventListener('mousemove', handleMove);
-    document.addEventListener('mouseup', handleEnd);
-
-    // Touch event listeners
-    analogContainer.addEventListener('touchstart', handleStart);
-    document.addEventListener('touchmove', handleMove);
-    document.addEventListener('touchend', handleEnd);
-    document.addEventListener('touchcancel', handleEnd); // Handle touch cancel
-</script>
-
-
-
-<!--START AND SELECT-->
-
-<style>
-    /* ... (Your previous styles for the D-pad, Xbox buttons, and analog stick) ... */
-
+    /* Start and Select buttons */
     .controller-buttons {
         display: flex;
         justify-content: space-around;
-        width: 200px; /* Adjust the width as needed */
-        margin: 20px auto; /* Centering and spacing from other elements */
-    }
-
-    .controller-button {
-        display: flex;
         align-items: center;
-        justify-content: center;
-        width: 60px; /* Size of the buttons */
-        height: 30px;
-        background-color: lightgray;
-        border: 1px solid black;
-        border-radius: 5px; /* Slightly rounded corners */
-        user-select: none;
+        height: 4em; /* Equivalent to 100px */
+        width: 12.5em; /* Adjust the width as needed */
     }
-</style>
 
-<div class="controller-buttons">
-    <div class="controller-button">Select</div>
-    <div class="controller-button">Start</div>
-</div>
-
-
-<!-- Triggers and Bumpers -->
-
-<style>
-    /* ... (Your previous styles for the D-pad, Xbox buttons, analog stick, and Start/Select buttons) ... */
-
-    .left-controls {
-        position: relative;
-        margin-left: 50px; /* Adjust as needed */
-        margin-top: 20px; /* Spacing from other elements */
+    /* Triggers and Bumpers */
+    .triggers {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        padding: .5em;
+        width: 7.25em; /* Equivalent to 100px */
+        height: 7.25em; /* Equivalent to 100px */
     }
 
     .bumper, .trigger {
-        width: 100px; /* Increased width of the bumper and trigger */
-        height: 30px; /* Increased height of the bumper */
+        width: 6.25em; /* Increased width */
+        height: 1.875em; /* Height of the bumper */
         background-color: darkgray;
-        border: 1px solid black;
-        margin-bottom: 10px; /* Spacing between bumper and trigger */
-        border-radius: 5px; /* Slightly rounded edges */
+        border-radius: 0.3125em;
         display: flex;
         align-items: center;
         justify-content: center;
     }
 
     .trigger {
-        height: 35px; /* Slightly shorter than the bumper, but increased from before */
+        height: 2.1875em; /* Height of the trigger */
         background-color: lightgray;
     }
 </style>
 
-<div class="left-controls">
-    <div class="trigger">LT</div>
-    <div class="bumper">LB</div>
+<label>
+    <input type="checkbox" id="toggleDrag">
+    Rearrange Controls
+</label>
+
+<div>
+    <!-- Left Joystick -->
+    <div class="analog-container controller-container left-joystick">
+        <div class="analog-stick button"></div>
+    </div>
+
+    <!-- Right Joystick -->
+    <div class="analog-container controller-container right-joystick">
+        <div class="analog-stick button"></div>
+    </div>
+
+    <!-- D-pad -->
+    <div class="dpad controller-container" id="dpad">
+        <div class="button up">U</div>
+        <div class="button right">R</div>
+        <div class="button down">D</div>
+        <div class="button left">L</div>
+    </div>
+
+    <!-- Xbox Buttons -->
+    <div class="xbox-buttons controller-container" id="xboxButtons">
+        <div class="button-x button">X</div>
+        <div class="button-y button">Y</div>
+        <div class="button-a button">A</div>
+        <div class="button-b button">B</div>
+    </div>
+
+    <!-- Start and Select Buttons -->
+    <div class="controller-buttons controller-container start-select-buttons">
+        <div class="controller-button button">Select</div>
+        <div class="controller-button button">Start</div>
+    </div>
+
+    <!-- Left Bumper and Trigger -->
+    <div class="triggers controller-container left-triggers">
+        <div class="trigger button">LT</div>
+        <div class="bumper button">LB</div>
+    </div>
+
+    <!-- Right Bumper and Trigger -->
+    <div class="triggers controller-container right-triggers">
+        <div class="trigger button">RT</div>
+        <div class="bumper button">RB</div>
+    </div>
+
 </div>
+
+
+<!-- JavaScript for Analog Stick -->
+<script>
+    document.querySelectorAll(".analog-container").forEach((analogContainer) => {
+        const analogStick = analogContainer.querySelector(".analog-stick");
+
+        let isDragging = false;
+
+        function handleStart(e) {
+            isDragging = true;
+            e.preventDefault();
+            updateStickPosition(e);
+        }
+
+        function handleEnd() {
+            isDragging = false;
+            resetStickPosition();
+        }
+
+        function handleMove(e) {
+            if (isDragging) {
+                e.preventDefault();
+                updateStickPosition(e);
+            }
+        }
+
+        function updateStickPosition(e) {
+            let clientX, clientY;
+
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+
+            const rect = analogContainer.getBoundingClientRect();
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const dx = x - centerX;
+            const dy = y - centerY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const maxDistance = 30; // Max distance from center (in px, consider converting to em)
+            const distanceRatio = Math.min(distance / maxDistance, 1);
+
+            analogStick.style.transform = `translate(-50%, -50%) translate(${dx * distanceRatio}px, ${dy * distanceRatio}px)`;
+        }
+
+        function resetStickPosition() {
+            analogStick.style.transform = 'translate(-50%, -50%)';
+        }
+
+        analogContainer.addEventListener('mousedown', handleStart);
+        document.addEventListener('mousemove', handleMove);
+        document.addEventListener('mouseup', handleEnd);
+
+        analogContainer.addEventListener('touchstart', handleStart);
+        document.addEventListener('touchmove', handleMove);
+        document.addEventListener('touchend', handleEnd);
+        document.addEventListener('touchcancel', handleEnd);
+    })
+</script>
+
+
+<script>
+    let dragEnabled = false;
+
+    // Function to set initial positions
+    function setInitialPositions() {
+        let rootContainer = document.body;
+        const bodyRect = rootContainer.getBoundingClientRect();
+        const bodyStyle = window.getComputedStyle(rootContainer);
+        const bodyMarginLeft = parseInt(bodyStyle.marginLeft, 10);
+        const bodyMarginTop = parseInt(bodyStyle.marginTop, 10);
+
+        Array.from(document.querySelectorAll('.controller-container')).reverse().forEach(container => {
+            if (container.style.position === "absolute") {
+                return;
+            }
+
+            const rect = container.getBoundingClientRect();
+            const relativeLeft = (bodyRect.left + bodyMarginLeft) - rect.left; // Adjust for body margin left
+            const relativeTop = rect.top - (bodyRect.top + bodyMarginTop); // Adjust for body margin top
+
+            container.style.position = 'absolute';
+            container.style.left = relativeLeft + 'px';
+            container.style.top = relativeTop + 'px';
+            container.style.right = '';
+            container.anchorPosition = 'left'; // Default anchor position
+        });
+    }
+
+    document.getElementById('toggleDrag').addEventListener('change', function () {
+        dragEnabled = this.checked;
+
+        if (dragEnabled) {
+            setInitialPositions();
+        }
+    });
+
+    let selectedElement = null;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    function handleDragStart(e) {
+        if (dragEnabled && e.target.classList.contains('controller-container')) {
+            selectedElement = e.target;
+        }
+    }
+
+    function handleDragMove(e) {
+        if (selectedElement && dragEnabled) {
+            // Adjust positions so that the element center is under the cursor
+            let xPosition = e.clientX - (selectedElement.offsetWidth / 2);
+            let yPosition = e.clientY - (selectedElement.offsetHeight / 2);
+
+            const screenWidth = window.innerWidth;
+            const elementCenterX = e.clientX; // The cursor X position is the center of the element
+
+            // Determine the horizontal anchoring
+            if (elementCenterX < screenWidth * 0.4) { // Left 40%
+                selectedElement.style.left = xPosition + 'px';
+                selectedElement.style.right = '';
+                selectedElement.anchorPosition = 'left';
+            } else if (elementCenterX > screenWidth * 0.6) { // Right 40%
+                selectedElement.style.right = (screenWidth - xPosition - selectedElement.offsetWidth) + 'px';
+                selectedElement.style.left = '';
+                selectedElement.anchorPosition = 'right';
+            } else { // Middle 20%
+                selectedElement.style.left = xPosition + 'px';
+                selectedElement.style.right = '';
+                selectedElement.anchorPosition = 'middle';
+            }
+
+            // Set the top position considering the vertical center
+            selectedElement.style.top = yPosition + 'px';
+        }
+    }
+
+    // Update position on window resize
+    window.addEventListener('resize', function () {
+        document.querySelectorAll('.controller-container').forEach(container => {
+            if (container.anchorPosition === 'middle') {
+                const screenWidth = window.innerWidth;
+                container.style.left = ((screenWidth * 0.4) + ((screenWidth * 0.2) - container.offsetWidth) / 2) + 'px';
+            }
+        });
+    });
+
+    document.addEventListener('mousedown', handleDragStart);
+    document.addEventListener('mousemove', handleDragMove);
+    document.addEventListener('mouseup', () => selectedElement = null);
+
+    // Touch event listeners for dragging
+    document.addEventListener('touchstart', function (e) {
+        if (e.touches.length) {
+            handleDragStart(e.touches[0]);
+        }
+    });
+
+    document.addEventListener('touchmove', function (e) {
+        if (e.touches.length) {
+            handleDragMove(e.touches[0]);
+        }
+    });
+
+    document.addEventListener('touchend', () => selectedElement = null);
+    document.addEventListener('touchcancel', () => selectedElement = null);
+</script>
+
+<script>
+    window.addEventListener('load', function() {
+        const screenHeight = window.innerHeight;
+        const screenWidth = window.innerWidth;
+
+        // Function to position a container by class
+        function positionContainerByClass(className, posX, posY, alignRight = false) {
+            const containers = document.querySelectorAll('.' + className);
+            containers.forEach(container => {
+                container.style.position = 'absolute';
+                if (alignRight) {
+                    container.style.right = posX + 'px';
+                    container.anchorPosition = 'left'
+                } else {
+                    container.style.left = posX + 'px';
+                }
+                container.style.bottom = posY + 'px';
+            });
+        }
+
+        // Position each controller component
+        positionContainerByClass('left-joystick', screenWidth * 0.1, screenHeight * 0.3);
+        positionContainerByClass('right-joystick', screenWidth * 0.1, screenHeight * 0.3, true); // Right aligned
+        positionContainerByClass('dpad', screenWidth * 0.1, screenHeight * 0.6);
+        positionContainerByClass('xbox-buttons', screenWidth * 0.1, screenHeight * 0.6, true); // Right aligned
+        positionContainerByClass('start-select-buttons', screenWidth * 0.45, screenHeight * 0.5);
+        positionContainerByClass('left-triggers', screenWidth * 0.1, screenHeight * 0.8);
+        positionContainerByClass('right-triggers', screenWidth * 0.1, screenHeight * 0.8, true); // Right aligned
+    });
+</script>
 
 
 </body>
