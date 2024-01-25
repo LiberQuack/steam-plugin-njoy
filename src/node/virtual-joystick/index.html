@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Joystick Control</title>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="./index.js"></script>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+</style>
+
+
+<button id="connect">Connect to Joystick</button>
+<div id="pressButton">Press Button</div>
+
+<script>
+    function alertErr(pre) {
+        return error => {
+            alert(pre + JSON.stringify(error, null, 2));
+        };
+    }
+
+    function debug(dbgMessage, obj) {
+        alert(dbgMessage + JSON.stringify(obj, null, 2));
+    }
+
+    document.querySelector('#connect').addEventListener('click', function () {
+        navigator.bluetooth.requestDevice({filters: [{services: ['12345678-1234-1234-1234-123456789abc']}]})
+            .then(device => device.gatt.connect())
+            .then(server => server.getPrimaryService('12345678-1234-1234-1234-123456789abc'))
+            .then(service => service.getCharacteristic('12345678-1234-1234-1234-123456789abd'))
+            .then(characteristic => {
+                // Save the characteristic for later use
+                alert("button connected");
+                window.buttonCharacteristic = characteristic;
+            })
+            .catch(alertErr("NOT connected \n"));
+    });
+    document.querySelector('#pressButton').addEventListener('touchstart', function () {
+        if (window.buttonCharacteristic) {
+            let value = new Uint8Array([1]); // Simulate a button press
+            window.buttonCharacteristic.writeValue(value)
+        }
+    });
+</script>
+
+
+<style>
+    /* Common container class */
+    .controller-container {
+        position: relative;
+        background-color: #f0f0f0; /* Light gray background */
+        border: 0.0625em solid black; /* Equivalent to 1px */
+    }
+
+    /* Common styles for buttons */
+    .button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.875em; /* Equivalent to 30px */
+        height: 1.875em; /* Equivalent to 30px */
+        border: 0.0625em solid black; /* Equivalent to 1px */
+        user-select: none;
+        background-color: gray;
+    }
+
+    /* D-pad specific styles */
+    .dpad {
+        width: 6.25em; /* Equivalent to 100px */
+        height: 6.25em; /* Equivalent to 100px */
+    }
+
+    .dpad .button {
+        position: absolute;
+    }
+
+    .up {
+        top: 0.3125em; /* Equivalent to 5px */
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .right {
+        top: 50%;
+        right: 0.3125em; /* Equivalent to 5px */
+        transform: translateY(-50%);
+    }
+
+    .down {
+        bottom: 0.3125em; /* Equivalent to 5px */
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .left {
+        top: 50%;
+        left: 0.3125em; /* Equivalent to 5px */
+        transform: translateY(-50%);
+    }
+
+    /* Xbox buttons specific styles */
+    .xbox-buttons {
+        width: 6.25em; /* Equivalent to 100px */
+        height: 6.25em; /* Equivalent to 100px */
+    }
+
+    .xbox-buttons .button {
+        border-radius: 50%; /* Circular buttons */
+        position: absolute;
+    }
+
+    .button-x {
+        top: 0.625em;
+        left: 2.1875em;
+    }
+
+    /* Equivalent positions */
+    .button-y {
+        top: 2.1875em;
+        left: 3.75em;
+    }
+
+    .button-a {
+        top: 2.1875em;
+        left: 0.625em;
+    }
+
+    .button-b {
+        top: 3.75em;
+        left: 2.1875em;
+    }
+
+    /* Analog stick specific styles */
+    .analog-container {
+        border-radius: 50%;
+        width: 6.25em; /* Equivalent to 100px */
+        height: 6.25em; /* Equivalent to 100px */
+    }
+
+    .analog-stick {
+        position: absolute;
+        width: 2.5em; /* Equivalent to 40px */
+        height: 2.5em;
+        background-color: darkgray;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    /* Start and Select buttons */
+    .controller-buttons {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        height: 4em; /* Equivalent to 100px */
+        width: 12.5em; /* Adjust the width as needed */
+    }
+
+    /* Triggers and Bumpers */
+    .triggers {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        padding: .5em;
+        width: 7.25em; /* Equivalent to 100px */
+        height: 7.25em; /* Equivalent to 100px */
+    }
+
+    .bumper, .trigger {
+        width: 6.25em; /* Increased width */
+        height: 1.875em; /* Height of the bumper */
+        background-color: darkgray;
+        border-radius: 0.3125em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .trigger {
+        height: 2.1875em; /* Height of the trigger */
+        background-color: lightgray;
+    }
+</style>
+
+<label>
+    <input type="checkbox" id="toggleDrag">
+    Rearrange Controls
+</label>
+
+<script>
+    window.addEventListener('load', function() {
+        const screenHeight = window.innerHeight;
+        const screenWidth = window.innerWidth;
+
+        // Function to position a container by class
+        function positionContainerByClass(className, posX, posY, alignRight = false) {
+            const containers = document.querySelectorAll('.' + className);
+            containers.forEach(container => {
+                container.style.position = 'absolute';
+                if (alignRight) {
+                    container.style.right = posX + 'px';
+                    container.anchorPosition = 'left'
+                } else {
+                    container.style.left = posX + 'px';
+                }
+                container.style.bottom = posY + 'px';
+            });
+        }
+
+        // Position each controller component
+        positionContainerByClass('left-joystick', screenWidth * 0.1, screenHeight * 0.3);
+        positionContainerByClass('right-joystick', screenWidth * 0.1, screenHeight * 0.3, true); // Right aligned
+        positionContainerByClass('dpad', screenWidth * 0.1, screenHeight * 0.6);
+        positionContainerByClass('xbox-buttons', screenWidth * 0.1, screenHeight * 0.6, true); // Right aligned
+        positionContainerByClass('start-select-buttons', screenWidth * 0.45, screenHeight * 0.5);
+        positionContainerByClass('left-triggers', screenWidth * 0.1, screenHeight * 0.8);
+        positionContainerByClass('right-triggers', screenWidth * 0.1, screenHeight * 0.8, true); // Right aligned
+    });
+</script>
+
+
+</body>
+</html>
